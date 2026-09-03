@@ -64,7 +64,12 @@ public class StringToAny
         }
 
         if (targetClass == boolean.class || targetClass == Boolean.class) {
-            return "true".equals(str);
+            if ("true".equalsIgnoreCase(str)
+                    || "T".equalsIgnoreCase(str)
+                    || "Y".equalsIgnoreCase(str)) {
+                return Boolean.TRUE;
+            }
+            return Boolean.FALSE;
         }
 
         if (targetClass == BigDecimal.class) {
