@@ -460,14 +460,23 @@ public class ObjectWriterProvider
      */
     public ObjectWriter getObjectWriter(Type objectType, String format, Locale locale) {
         if (objectType == Double.class) {
+            if ("string".equals(format) || "millis".equals(format)) {
+                return ObjectWriterImplDouble.INSTANCE;
+            }
             return new ObjectWriterImplDouble(new DecimalFormat(format));
         }
 
         if (objectType == Float.class) {
+            if ("string".equals(format) || "millis".equals(format)) {
+                return ObjectWriterImplFloat.INSTANCE;
+            }
             return new ObjectWriterImplFloat(new DecimalFormat(format));
         }
 
         if (objectType == BigDecimal.class) {
+            if ("string".equals(format) || "millis".equals(format)) {
+                return ObjectWriterImplBigDecimal.INSTANCE;
+            }
             return new ObjectWriterImplBigDecimal(new DecimalFormat(format), null);
         }
 

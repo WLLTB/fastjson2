@@ -122,6 +122,8 @@ public abstract class FieldWriter<T>
 
         DecimalFormat decimalFormat = null;
         if (format != null
+                && !"string".equals(format)
+                && !"millis".equals(format)
                 && (fieldClass == float.class
                 || fieldClass == float[].class
                 || fieldClass == Float.class
@@ -644,7 +646,11 @@ public abstract class FieldWriter<T>
 
     public void writeInt32(JSONWriter jsonWriter, int value) {
         writeFieldName(jsonWriter);
-        jsonWriter.writeInt32(value);
+        if ((features & WriteNonStringValueAsString.mask) != 0) {
+            jsonWriter.writeString(Integer.toString(value));
+        } else {
+            jsonWriter.writeInt32(value);
+        }
     }
 
     public void writeInt64(JSONWriter jsonWriter, long value) {
@@ -1048,7 +1054,7 @@ public abstract class FieldWriter<T>
             }
 
             if (BigDecimal.class == valueClass) {
-                if (format == null || format.isEmpty()) {
+                if (format == null || format.isEmpty() || "string".equals(format) || "millis".equals(format)) {
                     return ObjectWriterImplBigDecimal.INSTANCE;
                 } else {
                     return new ObjectWriterImplBigDecimal(new DecimalFormat(format), null);
@@ -1056,7 +1062,7 @@ public abstract class FieldWriter<T>
             }
 
             if (BigDecimal[].class == valueClass) {
-                if (format == null || format.isEmpty()) {
+                if (format == null || format.isEmpty() || "string".equals(format) || "millis".equals(format)) {
                     return new ObjectWriterArrayFinal(BigDecimal.class, null);
                 } else {
                     return new ObjectWriterArrayFinal(BigDecimal.class, new DecimalFormat(format));
