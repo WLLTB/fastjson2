@@ -812,7 +812,10 @@ public class JSONObject
                 return null;
             }
 
-            return "true".equalsIgnoreCase(str) || "1".equals(str);
+            return "true".equalsIgnoreCase(str)
+                    || "1".equals(str)
+                    || "T".equalsIgnoreCase(str)
+                    || "Y".equalsIgnoreCase(str);
         }
 
         throw new JSONException("Can not cast '" + value.getClass() + "' to boolean");
