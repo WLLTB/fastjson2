@@ -72,6 +72,13 @@ public abstract class FieldWriter<T>
             "initObjectWriter"
     );
 
+    static boolean isFormatKeyword(String format) {
+        return "string".equals(format)
+                || "millis".equals(format)
+                || "trim".equals(format)
+                || "symbol".equals(format);
+    }
+
     FieldWriter(
             String name,
             int ordinal,
@@ -122,8 +129,7 @@ public abstract class FieldWriter<T>
 
         DecimalFormat decimalFormat = null;
         if (format != null
-                && !"string".equals(format)
-                && !"millis".equals(format)
+                && !isFormatKeyword(format)
                 && (fieldClass == float.class
                 || fieldClass == float[].class
                 || fieldClass == Float.class
@@ -1054,7 +1060,7 @@ public abstract class FieldWriter<T>
             }
 
             if (BigDecimal.class == valueClass) {
-                if (format == null || format.isEmpty() || "string".equals(format) || "millis".equals(format)) {
+                if (format == null || format.isEmpty() || isFormatKeyword(format)) {
                     return ObjectWriterImplBigDecimal.INSTANCE;
                 } else {
                     return new ObjectWriterImplBigDecimal(new DecimalFormat(format), null);
@@ -1062,7 +1068,7 @@ public abstract class FieldWriter<T>
             }
 
             if (BigDecimal[].class == valueClass) {
-                if (format == null || format.isEmpty() || "string".equals(format) || "millis".equals(format)) {
+                if (format == null || format.isEmpty() || isFormatKeyword(format)) {
                     return new ObjectWriterArrayFinal(BigDecimal.class, null);
                 } else {
                     return new ObjectWriterArrayFinal(BigDecimal.class, new DecimalFormat(format));
