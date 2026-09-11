@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.util.DateUtils;
 import com.alibaba.fastjson2.util.IOUtils;
+import com.alibaba.fastjson2.util.TypeUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -64,9 +65,7 @@ public class StringToAny
         }
 
         if (targetClass == boolean.class || targetClass == Boolean.class) {
-            if ("true".equalsIgnoreCase(str)
-                    || "T".equalsIgnoreCase(str)
-                    || "Y".equalsIgnoreCase(str)) {
+            if (TypeUtils.isTrueSpelling(str)) {
                 return Boolean.TRUE;
             }
             return Boolean.FALSE;

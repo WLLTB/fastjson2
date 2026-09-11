@@ -1,6 +1,8 @@
 package com.alibaba.fastjson2.issues_7800;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.util.TypeUtils;
 import org.junit.jupiter.api.Tag;
@@ -9,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("regression")
@@ -65,16 +68,46 @@ public class Issue7842 {
         jo.put("f", "1");
         assertTrue(jo.getBoolean("f"));
         assertFalse(jo.getObject("f", Boolean.class));
+        // ... and except mixed-case null spellings, also a deliberate per-path contract:
+        // getBoolean uses an equalsIgnoreCase null guard (null), while getObject routes
+        // through StringToAny's case-sensitive "null" guard and falls back to FALSE
+        for (String s : new String[]{"NULL", "Null"}) {
+            JSONObject joNull = new JSONObject();
+            joNull.put("f", s);
+            assertNull(joNull.getBoolean("f"), s);
+            assertFalse(joNull.getObject("f", Boolean.class), s);
+        }
     }
 
     @Test
     public void testJSONArrayAgreement() {
         for (String s : new String[]{
-                "true", "TRUE", "T", "t", "Y", "y",
-                "false", "FALSE", "0", "F", "f", "N", "n", "abc"}) {
+                "true", "TRUE", "True", "T", "t", "Y", "y",
+                "false", "FALSE", "False", "0", "F", "f", "N", "n",
+                "YES", "abc", "2", "", "null"}) {
             JSONArray ja = new JSONArray();
             ja.add(s);
             assertEquals(ja.getObject(0, Boolean.class), ja.getBoolean(0), s);
         }
+        // "1" keeps the same deliberate per-path contract as the JSONObject twin
+        JSONArray ja = new JSONArray();
+        ja.add("1");
+        assertTrue(ja.getBoolean(0));
+        assertFalse(ja.getObject(0, Boolean.class));
+    }
+
+    public static class FlagBean {
+        public Boolean f;
+    }
+
+    @Test
+    public void testBeanParseBoundary() {
+        // deliberate boundary contract: tree/cast paths stay lenient ...
+        JSONObject jo = JSON.parseObject("{\"f\":\"t\"}");
+        assertTrue(jo.getBoolean("f"));
+        assertTrue(jo.getObject("f", Boolean.class));
+        assertTrue(TypeUtils.cast("t", Boolean.class));
+        // ... while bean-binding stays strict and rejects "t" as malformed
+        assertThrows(JSONException.class, () -> JSON.parseObject("{\"f\":\"t\"}", FlagBean.class));
     }
 }
