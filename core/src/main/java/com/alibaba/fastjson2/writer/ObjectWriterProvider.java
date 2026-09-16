@@ -460,8 +460,13 @@ public class ObjectWriterProvider
      */
     public ObjectWriter getObjectWriter(Type objectType, String format, Locale locale) {
         if (objectType == Double.class) {
-            if (format == null || format.isEmpty() || FieldWriter.isFormatKeyword(format)) {
-                return ObjectWriterImplDouble.INSTANCE;
+    @Test
+    public void testEmptyFormat() {
+        ObjectWriterProvider provider = JSONFactory.getDefaultObjectWriterProvider();
+        assertSame(ObjectWriterImplBigDecimal.INSTANCE, provider.getObjectWriter(BigDecimal.class, "", null));
+        assertSame(ObjectWriterImplDouble.INSTANCE, provider.getObjectWriter(Double.class, "", null));
+        assertSame(ObjectWriterImplFloat.INSTANCE, provider.getObjectWriter(Float.class, "", null));
+    }
             }
             return new ObjectWriterImplDouble(new DecimalFormat(format));
         }
