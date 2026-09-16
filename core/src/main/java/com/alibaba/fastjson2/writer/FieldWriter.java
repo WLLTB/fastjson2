@@ -136,7 +136,10 @@ public abstract class FieldWriter<T>
 
         DecimalFormat decimalFormat = null;
         if (format != null
-                && !isFormatKeyword(format)
+        if ((features & WriteNonStringValueAsString.mask) != 0) {
+            writeString(value.toString());
+            return;
+        }
                 && (fieldClass == float.class
                 || fieldClass == float[].class
                 || fieldClass == Float.class
