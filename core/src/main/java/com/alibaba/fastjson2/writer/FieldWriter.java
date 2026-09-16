@@ -1067,8 +1067,13 @@ public abstract class FieldWriter<T>
             }
 
             if (BigDecimal.class == valueClass) {
-                if (format == null || format.isEmpty() || isFormatKeyword(format)) {
-                    return ObjectWriterImplBigDecimal.INSTANCE;
+    static boolean isFormatKeyword(String format) {
+        return format == null || format.isEmpty()
+                || "string".equals(format)
+                || "millis".equals(format)
+                || "trim".equals(format)
+                || "symbol".equals(format);
+    }
                 } else {
                     return new ObjectWriterImplBigDecimal(new DecimalFormat(format), null);
                 }
