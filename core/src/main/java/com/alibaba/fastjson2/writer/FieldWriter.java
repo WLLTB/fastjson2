@@ -75,8 +75,15 @@ public abstract class FieldWriter<T>
     static boolean isFormatKeyword(String format) {
         return "string".equals(format)
                 || "millis".equals(format)
-                || "trim".equals(format)
-                || "symbol".equals(format);
+    public static class BeanSymbolDouble {
+        @JSONField(format = "symbol")
+        public Double value = 0.47;
+    }
+
+    @Test
+    public void testSymbolDouble() {
+        assertEquals("{\"value\":0.47}", JSON.toJSONString(new BeanSymbolDouble()));
+    }
     }
 
     FieldWriter(
